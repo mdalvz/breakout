@@ -56,7 +56,7 @@ canvas.addEventListener('mousemove', (event) => {
 canvas.addEventListener('click', () => {
   if (!gameStarted) {
     gameStarted = true;
-    ballVelocityY = 10;
+    ballVelocityY = 8;
   }
 });
 
@@ -82,7 +82,7 @@ function update() {
         // Make it move up
         ballVelocityY *= -1;
         // Add some random spin to the ball
-        ballVelocityX += Math.random() * 8 - 4;
+        ballVelocityX += Math.random() * 6 - 3;
       }
     }
   }

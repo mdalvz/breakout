@@ -59,16 +59,6 @@ canvas.addEventListener('click', () => {
     gameStarted = true;
     ballVelocityY = 8;
   }
-  // Reset the game after we win or lose
-  if (gameLose || gameWin) {
-    gameLose = false;
-    gameWin = false;
-    gameStarted = false;
-    ballVelocityX = 0;
-    ballVelocityY = 0;
-    ballX = screenWidth / 2 - ballWidth / 2;
-    ballY = screenHeight / 2 - ballWidth / 2;
-  }
 });
 
 // Update the game state over time

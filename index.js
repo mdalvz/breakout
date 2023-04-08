@@ -66,6 +66,8 @@ canvas.addEventListener('click', () => {
     gameStarted = false;
     ballVelocityX = 0;
     ballVelocityY = 0;
+    ballX = screenWidth / 2 - ballWidth / 2;
+    ballY = screenHeight / 2 - ballWidth / 2;
   }
 });
 

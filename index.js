@@ -54,9 +54,18 @@ canvas.addEventListener('mousemove', (event) => {
 
 // Wait for the user to click to start
 canvas.addEventListener('click', () => {
+  // Start the game if it's not started
   if (!gameStarted) {
     gameStarted = true;
     ballVelocityY = 8;
+  }
+  // Reset the game after we win or lose
+  if (gameLose || gameWin) {
+    gameLose = false;
+    gameWin = false;
+    gameStarted = false;
+    ballVelocityX = 0;
+    ballVelocityY = 0;
   }
 });
 
@@ -82,7 +91,7 @@ function update() {
         // Make it move up
         ballVelocityY *= -1;
         // Add some random spin to the ball
-        ballVelocityX += Math.random() * 6 - 3;
+        ballVelocityX += Math.random() * 4 - 2;
       }
     }
   }

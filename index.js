@@ -1,5 +1,5 @@
 // Set up our drawing canvas
-const canvas = document.getElementById('canvas');
+const canvas  = document.getElementById('canvas');
 const context = canvas.getContext('2d');
 
 // Set up our constant values
@@ -61,30 +61,78 @@ canvas.addEventListener('click', () => {
   }
 });
 
-// Update the game state over time
+// Render text on the screen
+function renderText(text) {
+  context.font = '48px sans-serif';
+  context.fillStyle = 'black';
+  context.textAlign = 'center';
+  context.fillText(text, screenWidth / 2, screenHeight / 2);
+}
+
+// Render a rectangle
+function renderRect(x, y, w, h, color) {
+  context.beginPath();
+  context.rect(x, y, w, h);
+  context.fillStyle = color;
+  context.fill();
+}
+
+// Check if two blocks are touching
+function isBallTouching(x, y, w, h) {
+  var left = Math.max(x, ballX);
+  var right = Math.min(x + w, ballX + ballWidth);
+  var top = Math.max(y, ballY);
+  var bottom = Math.min(y + h, ballY + ballWidth);
+  return left < right && top < bottom;
+}
+
+// Update the game state
 function update() {
 
-  // If we're not playing, we don't need to update anything
-  if (!gameStarted || gameWin || gameLose) {
+  // Clear what we drew before
+  context.clearRect(0, 0, screenWidth, screenHeight);
+
+  // If we didn't start, show start message
+  if (!gameStarted) {
+    renderText('Click to start');
     return;
   }
+  // If we won, show win message
+  if (gameWin) {
+    renderText('You won :)');
+    return;
+  }
+  // If we lost, show lose message
+  if (gameLose) {
+    renderText('You lost :(');
+    return;
+  }
+
+  // Draw our blocks at the top
+  for (var block of blocks) {
+    if (block.alive) {
+      renderRect(block.blockX, block.blockY, blockWidth, blockHeight, block.color);
+    }
+  }
+
+  // Draw our bat at the bottom
+  renderRect(batX, batY, batWidth, batHeight, batColor);
+
+  // Draw the ball
+  renderRect(ballX, ballY, ballWidth, ballWidth, ballColor);
 
   // Move the ball in the direction it's going
   ballX += ballVelocityX;
   ballY += ballVelocityY;
 
   // If the ball is touching the bat, bounce it up
-  if (ballY + ballWidth >= batY) {
-    var left = Math.max(batX, ballX);
-    var right = Math.min(batX + batWidth, ballX + ballWidth);
-    if (left < right) {
-      // If ball is moving down
-      if (ballVelocityY > 0) {
-        // Make it move up
-        ballVelocityY *= -1;
-        // Add some random spin to the ball
-        ballVelocityX += Math.random() * 4 - 2;
-      }
+  if (isBallTouching(batX, batY, batWidth, batHeight)) {
+    // If ball is moving down
+    if (ballVelocityY > 0) {
+      // Make it move up
+      ballVelocityY *= -1;
+      // Add some random spin to the ball
+      ballVelocityX += Math.random() * 4 - 2;
     }
   }
 
@@ -123,19 +171,13 @@ function update() {
 
   // If the ball is touching a block, then delete the block and bounce
   for (var block of blocks) {
-    if (block.alive) {
-      var left = Math.max(block.blockX, ballX);
-      var right = Math.min(block.blockX + blockWidth, ballX + ballWidth);
-      var top = Math.max(block.blockY, ballY);
-      var bottom = Math.min(block.blockY + blockHeight, ballY + ballWidth);
-      // If the ball is touching the block
-      if (left < right && top < bottom) {
-        // Then the block is now not alive
-        block.alive = false;
-        // We also want to bounce our ball down
-        if (ballVelocityY < 0) {
-          ballVelocityY *= -1;
-        }
+    // If block is alive and ball is touching it
+    if (block.alive && isBallTouching(block.blockX, block.blockY, blockWidth, blockHeight)) {
+      // Then the block is now not alive
+      block.alive = false;
+      // We also want to bounce our ball down
+      if (ballVelocityY < 0) {
+        ballVelocityY *= -1;
       }
     }
   }
@@ -143,61 +185,9 @@ function update() {
   // If all of the blocks aren't alive, then we won
   if (blocks.every(block => !block.alive)) {
     gameWin = true;
-    return;
   }
 
 }
 
 // Run the update once 60 times per second
 setInterval(update, 16);
-
-// Display our game
-function render() {
-
-  // Clear what we drew before
-  context.clearRect(0, 0, screenWidth, screenHeight);
-
-  // Display text for different scenarios
-  function displayText(text) {
-    context.font = '48px sans-serif';
-    context.fillStyle = 'black';
-    context.textAlign = 'center';
-    context.fillText(text, screenWidth / 2, screenHeight / 2);
-  }
-  if (!gameStarted) {
-    displayText('Click to start');
-    return;
-  } else if (gameWin) {
-    displayText('You won :)');
-    return;
-  } else if (gameLose) {
-    displayText('You lost :(');
-    return;
-  }
-
-  // Draw our blocks at the top
-  for (var block of blocks) {
-    if (block.alive) {
-      context.beginPath();
-      context.rect(block.blockX, block.blockY, blockWidth, blockHeight);
-      context.fillStyle = block.color;
-      context.fill();
-    }
-  }
-
-  // Draw our bat at the bottom
-  context.beginPath();
-  context.rect(batX, batY, batWidth, batHeight);
-  context.fillStyle = batColor;
-  context.fill();
-
-  // Draw the ball
-  context.beginPath();
-  context.rect(ballX, ballY, ballWidth, ballWidth);
-  context.fillStyle = ballColor;
-  context.fill();
-
-}
-
-// Render our game at 120fps
-setInterval(render, 8);
